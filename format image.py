@@ -1,16 +1,24 @@
 from skimage import io
 from skimage.transform import resize
+from skimage.util import img_as_ubyte
 
 import matplotlib.pyplot as plt
 IMG_SIZE = 128
 
 
+def format_image(path):
+    uncropped = load_image("unknown_images/test.jpg")
+    cropped = crop_image(uncropped)
+    resized = resize_image(cropped)
+    return resized
 
-def save_formated_image(path,):
+
+def format_and_save(path):
     uncropped = load_image(path)
     cropped = crop_image(uncropped)
     resized = resize_image(cropped)
-    save_image(resized, save_cntr)
+    save_image(resized)
+    return resized
 
 
 def load_image(path):
@@ -34,16 +42,29 @@ def resize_image(image):
     return resize(image, (IMG_SIZE, IMG_SIZE, 3))
 
 
-def save_image(image, cntr):
+def save_image(image):
+    cntr = get_image_cntr() + 1
     path = "formated_images/" + str(cntr) + ".jpg"
-    io.imsave(path, image)
-
-    #io.imshow(uncropped_gray)
-    #io.show()
-    #save new image in different folder
+    tosave = img_as_ubyte(image)
+    io.imsave(path, tosave)
 
 
+def get_image_cntr():
+    with open("settings", 'r+', encoding='utf-8') as file:
+        lines = file.readlines()
+        cntr = ''
+        for line in lines:
+            if line.find('cntr') != -1:
+                for char in line:
+                    if char.isdigit():
+                        cntr += char
+        file.seek(0)
+        text = file.read()
+        file.seek(text.find('cntr') + 5)
+        num = int(cntr) + 1
+        file.write(str(num) + "\n")
+        return int(cntr)
 
 
 if __name__ == "__main__":
-    main()
+    format_and_save("unknown_images/test1.jpg", )
