@@ -3,21 +3,38 @@ from skimage.transform import resize
 from skimage.util import img_as_ubyte
 
 import matplotlib.pyplot as plt
-IMG_SIZE = 128
+IMG_SIZE = -1
+SAVE_IMAGE = -1
+
+
+def init():
+    global IMG_SIZE, SAVE_IMAGE
+    with open("settings", 'r+', encoding='utf-8') as file:
+        lines = file.readlines()
+        for line in lines:
+            if line.find('size') != -1:
+                temp = ''
+                for char in line:
+                    if char.isdigit():
+                        temp += char
+                IMG_SIZE = int(temp)
+            if line.find('save') != -1:
+                temp = ''
+                for char in line:
+                    if char.isdigit():
+                        temp += char
+                if int(temp):
+                    SAVE_IMAGE = 1
+                else:
+                    SAVE_IMAGE = 0
 
 
 def format_image(path):
-    uncropped = load_image("unknown_images/test.jpg")
-    cropped = crop_image(uncropped)
-    resized = resize_image(cropped)
-    return resized
-
-
-def format_and_save(path):
     uncropped = load_image(path)
     cropped = crop_image(uncropped)
     resized = resize_image(cropped)
-    save_image(resized)
+    if SAVE_IMAGE:
+        save_image(resized)
     return resized
 
 
@@ -66,5 +83,4 @@ def get_image_cntr():
         return int(cntr)
 
 
-if __name__ == "__main__":
-    format_and_save("unknown_images/test1.jpg", )
+
