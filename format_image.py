@@ -7,7 +7,7 @@ IMG_SIZE = -1
 SAVE_IMAGE = -1
 
 
-def init():
+def format_init():
     global IMG_SIZE, SAVE_IMAGE
     with open("settings", 'r+', encoding='utf-8') as file:
         lines = file.readlines()
@@ -77,7 +77,7 @@ def get_image_cntr():
                         cntr += char
         file.seek(0)
         text = file.read()
-        file.seek(text.find('cntr') + 5)
+        file.seek(text.find('cntr') + 6)
         num = int(cntr) + 1
         file.write(str(num) + "\n")
         return int(cntr)
