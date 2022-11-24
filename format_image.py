@@ -30,6 +30,28 @@ def format_init():
                     SAVE_IMAGE = 0
 
 
+def format_directory(path):
+    try:
+        files = os.listdir(path)
+    except FileNotFoundError:
+        raise FileNotFoundError
+    except NotADirectoryError:
+        raise NotADirectoryError
+    numimages = 0
+    for file in files:
+        if file.endswith(".jpg") or file.endswith(".png"):
+            numimages += 1
+    if numimages < 1:
+        raise ValueError
+    i = 0
+    for file in files:
+        if file.endswith(".jpg") or file.endswith(".png"):
+            print("Processing images " + str(i) + " of " + str(numimages))
+            format_image(os.path.join(path, file))
+            i += 1
+    print("Processing images " + str(i) + " of " + str(numimages))
+
+
 def format_image(path):
     uncropped = load_image(path)
     cropped = crop_image(uncropped)
@@ -62,12 +84,12 @@ def resize_image(image):
 
 def save_image(image):
     cntr = get_image_cntr() + 1
-    path = "formated_images/" + str(cntr) + ".jpg"
+    path = "formatted_images/" + str(cntr) + ".jpg"
     tosave = img_as_ubyte(image)
     try:
         io.imsave(path, tosave)
     except FileNotFoundError:
-        os.mkdir("formated_images/")
+        os.mkdir("formatted_images/")
         io.imsave(path, tosave)
 
 

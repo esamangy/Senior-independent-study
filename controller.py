@@ -1,6 +1,6 @@
 # this file will be used as a controller to control all aspects of the program
 import os
-from format_image import format_image, format_init
+from format_image import format_directory, format_init
 
 
 training = None
@@ -14,7 +14,23 @@ def main():
     update_settings()
     # init everything
     format_init()
-    format_image('unknown_images/test1.jpg')
+    get_and_use_directory_path()
+
+
+def get_and_use_directory_path():
+    message = "Please enter a valid path to a folder with images to be used."
+    while 1:
+        inp = input(message)
+        try:
+            format_directory(inp)
+            break
+        except FileNotFoundError:
+            message = "The folder you input does not exist, please input another path"
+        except NotADirectoryError:
+            message = "The path you input was not to a directory, please input another path"
+        except ValueError:
+            message = "The directory you input has no images, please input another path"
+    return
 
 
 def get_user_settings():
@@ -43,9 +59,9 @@ def get_user_settings():
         else:
             message = "Your size must be at least 128"
     message = "Would you like to save any images that need formatting. Formatting means cropping the images to\n" \
-              "square to the size you just input of " + str(size) + ". This will not overwrite your images but it\n" \
-              "will overwrite any previously formatted images. This will make current runtime longer but increase\n" \
-              "speed for any future runs on the same set. Type \"yes\" to save or \"no\" to skip this."
+              "square to the size you just input of " + str(size) + ". This will not overwrite your original images " \
+              "but it\nwill overwrite any previously formatted images. This will make initail runtime longer but " \
+              "increase\nspeed for later processing. Type \"yes\" to save or \"no\" to skip this."
     while 1:
         inp = input(message)
         if inp.lower() == "yes":
