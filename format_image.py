@@ -1,6 +1,7 @@
 from skimage import io
 from skimage.transform import resize
 from skimage.util import img_as_ubyte
+import os
 
 import matplotlib.pyplot as plt
 IMG_SIZE = -1
@@ -63,7 +64,11 @@ def save_image(image):
     cntr = get_image_cntr() + 1
     path = "formated_images/" + str(cntr) + ".jpg"
     tosave = img_as_ubyte(image)
-    io.imsave(path, tosave)
+    try:
+        io.imsave(path, tosave)
+    except FileNotFoundError:
+        os.mkdir("formated_images/")
+        io.imsave(path, tosave)
 
 
 def get_image_cntr():

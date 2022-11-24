@@ -14,9 +14,7 @@ def main():
     update_settings()
     # init everything
     format_init()
-
-
-    #format_image('unknown_images/test4.jpg')
+    format_image('unknown_images/test1.jpg')
 
 
 def get_user_settings():
@@ -62,8 +60,8 @@ def get_user_settings():
 
 def update_settings():
     with open("settings", 'w', encoding='utf-8') as file:
-        file.write('size' + size + '\n')
-        file.write('save' + save + '\n')
+        file.write('size' + str(size) + '\n')
+        file.write('save' + str(save) + '\n')
         if save == 1:
             file.write('cntr' + '0')
 
