@@ -1,6 +1,7 @@
 # this file will be used as a controller to control all aspects of the program
 import os
 from format_image import format_directory, format_init
+from AI import load_data
 
 
 training = None
@@ -14,7 +15,8 @@ def main():
     update_settings()
     # init everything
     format_init()
-    get_and_use_directory_path()
+    #get_and_use_directory_path()
+    load_data()
 
 
 def get_and_use_directory_path():
@@ -58,28 +60,29 @@ def get_user_settings():
             break
         else:
             message = "Your size must be at least 128"
-    message = "Would you like to save any images that need formatting. Formatting means cropping the images to\n" \
-              "square to the size you just input of " + str(size) + ". This will not overwrite your original images " \
-              "but it\nwill overwrite any previously formatted images. This will make initail runtime longer but " \
-              "increase\nspeed for later processing. Type \"yes\" to save or \"no\" to skip this."
-    while 1:
-        inp = input(message)
-        if inp.lower() == "yes":
-            save = 1
-            break
-        elif inp.lower() == "no":
-            save = 0
-            break
-        else:
-            message = "Please type yes or no"
+    # message = "Would you like to save any images that need formatting. Formatting means cropping the images to\n" \
+    #           "square to the size you just input of " + str(size) + ". This will not overwrite your original images " \
+    #           "but it\nwill overwrite any previously formatted images. This will make initial runtime longer but " \
+    #           "increase\nspeed for later processing. Type \"yes\" to save or \"no\" to skip this."
+    # while 1:
+    #     inp = input(message)
+    #     if inp.lower() == "yes":
+    #         save = 1
+    #         break
+    #     elif inp.lower() == "no":
+    #         save = 0
+    #         break
+    #     else:
+    #         message = "Please type yes or no"
 
 
 def update_settings():
-    with open("settings", 'w', encoding='utf-8') as file:
+    with open("settings.txt", 'w', encoding='utf-8') as file:
         file.write('size' + str(size) + '\n')
-        file.write('save' + str(save) + '\n')
-        if save == 1:
-            file.write('cntr' + '0')
+        # file.write('save' + str(save) + '\n')
+        file.write('save' + '1' + '\n')
+        #if save == 1:
+            #file.write('cntr' + '0')
 
 
 if __name__ == "__main__":
