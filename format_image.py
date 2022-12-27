@@ -2,6 +2,7 @@ from skimage import io
 from skimage.transform import resize
 from skimage.util import img_as_ubyte
 import os
+import re
 
 import matplotlib.pyplot as plt
 IMG_SIZE = -1
@@ -31,6 +32,9 @@ def format_init():
 
 
 def format_directory(path):
+    if re.search("formatted_images", path):
+        print("already formatted")
+        return
     try:
         files = os.listdir(path)
     except FileNotFoundError:
@@ -87,14 +91,19 @@ def resize_image(image):
 
 def save_image(image, name):
     #cntr = get_image_cntr() + 1
-    path = "formatted_images\\" + name + ".jpg"
+    path = "formatted_images" + str(IMG_SIZE) + "x" + str(IMG_SIZE) + "\\" + name
     tosave = img_as_ubyte(image)
     try:
         io.imsave(path, tosave)
     except FileNotFoundError:
-        os.mkdir("formatted_images\\")
+        os.mkdir("formatted_images" + str(IMG_SIZE) + "x" + str(IMG_SIZE) + "\\")
         io.imsave(path, tosave)
 
+
+def show_image(image):
+    io.show()
+    io.imshow(image)
+    plt.show
 
 # def get_image_cntr():
 #     with open("settings.txt", 'r+', encoding='utf-8') as file:

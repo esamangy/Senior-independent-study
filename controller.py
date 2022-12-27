@@ -1,7 +1,7 @@
 # this file will be used as a controller to control all aspects of the program
 import os
 from format_image import format_directory, format_init
-from AI import load_data
+from AI import init_data
 
 
 training = None
@@ -15,8 +15,8 @@ def main():
     update_settings()
     # init everything
     format_init()
-    #get_and_use_directory_path()
-    load_data()
+    get_and_use_directory_path()
+    init_data(size)
 
 
 def get_and_use_directory_path():
