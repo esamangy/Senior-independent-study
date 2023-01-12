@@ -1,7 +1,8 @@
 import os
 from random import randrange
-from format_image import load_image, show_image
+from format_image import load_image, show_image, IMG_SIZE
 
+import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 
@@ -9,8 +10,11 @@ from tensorflow import keras
 import numpy as np
 import matplotlib.pyplot as plt
 train_images = []
+train_labels = [0, 1]
 test_images = []
+
 path = ""
+model = None
 
 
 def init_data(size):
@@ -34,6 +38,7 @@ def init_data(size):
             train.append((file, real))
     load_data(test, 1)
     load_data(train, 0)
+    preprocess_images()
 
 
 def load_data(files, test):
@@ -50,3 +55,66 @@ def load_image_for_ai(info):
     return image, info[1]
 
 
+# this method is used to make each pixel into a single data point to make the network smaller
+def preprocess_images():
+    global train_images, test_images
+    temprow = np.empty(len(train_images[0][0][0]), dtype=int)
+    tempimage = np.empty(len(train_images[0][0]), dtype=object)
+    i = 0
+    # for train_images
+    for image, data in train_images:
+        r = 0
+        for row in image:
+            p = 0
+            for pix in row:
+                temp = pix[0]
+                temp = temp << 8
+                temp = temp + pix[1]
+                temp = temp << 8
+                temp = temp + pix[2]
+                temp = temp / 0xffffff
+                temprow[r] = temp
+                # error here
+                p += 1
+            tempimage[i] = temprow
+            r += 1
+        train_images[i] = tempimage
+        i += 1
+
+    # for test images
+    for image, data in test_images:
+        r = 0
+        for row in image:
+            p = 0
+            for pix in row:
+                temp = pix[0]
+                temp = temp << 8
+                temp = temp + pix[1]
+                temp = temp << 8
+                temp = temp + pix[2]
+                temp = temp / 0xffffff
+                temprow[r] = temp
+                # error here
+                p += 1
+            tempimage[i] = temprow
+            r += 1
+        test_images[i] = tempimage
+        i += 1
+
+
+# this method will build the network itself
+def build_network():
+    global model
+    model = keras.Sequential([
+        keras.layers.Flatten(input_shape=(IMG_SIZE, IMG_SIZE)),  # input layer (1)
+        keras.layers.Dense(IMG_SIZE, activation='relu'),  # hidden layer (2)
+        keras.layers.Dense(1, activation='softmax')  # output layer (3)
+    ])
+
+
+def compile_network():
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+
+def train(epochs):
+    model.fit(train_images, train_labels, epochs=10)  # we pass the data, labels and epochs and watch the magic!

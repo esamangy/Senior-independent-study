@@ -32,7 +32,7 @@ def format_init():
 
 
 def format_directory(path):
-    if re.search("formatted_images", path):
+    if re.search("formatted_images" + str(IMG_SIZE) + "x" + str(IMG_SIZE), path):
         print("already formatted")
         return
     try:
@@ -103,7 +103,7 @@ def save_image(image, name):
 def show_image(image):
     io.show()
     io.imshow(image)
-    plt.show
+    plt.show()
 
 # def get_image_cntr():
 #     with open("settings.txt", 'r+', encoding='utf-8') as file:
