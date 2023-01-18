@@ -106,11 +106,28 @@ def preprocess_images():
 # this method will build the network itself
 def build_network():
     global model
-    model = keras.Sequential([
-        keras.layers.Flatten(input_shape=(IMG_SIZE, IMG_SIZE)),  # input layer (1)
-        keras.layers.Dense(IMG_SIZE, activation='relu'),  # hidden layer (2)
-        keras.layers.Dense(1, activation='softmax')  # output layer (3)
-    ])
+    if IMG_SIZE <= 256:
+        model = keras.Sequential([
+            keras.layers.Flatten(input_shape=(IMG_SIZE, IMG_SIZE)),  # input layer (1)
+            keras.layers.Conv1D(IMG_SIZE * 2, activation='relu'),  # hidden layer (2)
+            keras.layers.Dense(IMG_SIZE / 2, activation='sigmoid'), # output layer (3)
+            keras.layers.Dense(1, activation='softmax')  # output layer (4)
+        ])
+    elif IMG_SIZE <= 512:
+        model = keras.Sequential([
+            keras.layers.Flatten(input_shape=(IMG_SIZE, IMG_SIZE)),  # input layer (1)
+            keras.layers.Conv1D(IMG_SIZE * 4, activation='relu'),  # hidden layer (2)
+            keras.layers.Dense(IMG_SIZE, activation='sigmoid'),  # output layer (3)
+            keras.layers.Dense(1, activation='softmax')  # output layer (4)
+        ])
+    else:
+        model = keras.Sequential([
+            keras.layers.Flatten(input_shape=(IMG_SIZE, IMG_SIZE)),  # input layer (1)
+            keras.layers.Conv1D(IMG_SIZE * 6, activation='relu'),  # hidden layer (2)
+            keras.layers.Dense(IMG_SIZE * 2, activation='sigmoid'),  # output layer (3)
+            keras.layers.Dense(IMG_SIZE / 2, activation='sigmoid'),  # output layer (4)
+            keras.layers.Dense(1, activation='softmax')  # output layer (5)
+        ])
 
 
 def compile_network():
