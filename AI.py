@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 train_images = []
 train_labels = [0, 1]
+test_labels = ["fake", "real"]
 test_images = []
 
 path = ""
@@ -118,3 +119,14 @@ def compile_network():
 
 def train(epochs):
     model.fit(train_images, train_labels, epochs=10)  # we pass the data, labels and epochs and watch the magic!
+
+
+def evaluate():
+    test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=1)
+    print('Test accuracy:', test_acc)
+
+
+def predict():
+    predictions = model.predict(test_images)
+    for pred in predictions:
+        test_labels[np.argmax(pred)]

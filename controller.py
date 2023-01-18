@@ -1,7 +1,7 @@
 # this file will be used as a controller to control all aspects of the program
 import os
 from format_image import format_directory, format_init
-from AI import init_data, build_network, compile_network, train
+from AI import init_data, build_network, compile_network, train, evaluate
 
 
 training = None
@@ -20,6 +20,7 @@ def main():
     build_network()
     compile_network()
     train()
+    evaluate()
 
 
 def get_and_use_directory_path():
