@@ -104,22 +104,3 @@ def show_image(image):
     io.show()
     io.imshow(image)
     plt.show()
-
-# def get_image_cntr():
-#     with open("settings.txt", 'r+', encoding='utf-8') as file:
-#         lines = file.readlines()
-#         cntr = ''
-#         for line in lines:
-#             if line.find('cntr') != -1:
-#                 for char in line:
-#                     if char.isdigit():
-#                         cntr += char
-#         file.seek(0)
-#         text = file.read()
-#         file.seek(text.find('cntr') + 6)
-#         num = int(cntr) + 1
-#         file.write(str(num) + "\n")
-#         return int(cntr)
-
-
-

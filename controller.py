@@ -1,12 +1,11 @@
 # this file will be used as a controller to control all aspects of the program
-import os
 from format_image import format_directory, format_init
-from AI import init_data, build_network, compile_network, train, evaluate
-
+from AI import *
 
 training = None
 size = -1
 save = None
+epochs = -1
 
 
 def main():
@@ -14,13 +13,20 @@ def main():
     get_user_settings()
     update_settings()
     # init everything
-    format_init()
-    get_and_use_directory_path()
-    init_data(size)
-    build_network()
-    compile_network()
-    train()
-    evaluate()
+    if training:
+        format_init()
+        get_and_use_directory_path()
+        init_data(size)
+        build_network()
+        compile_network()
+        train(epochs)
+        evaluate()
+        temp = "Model" + str(size) + "x" + str(size) + "_" + str(epochs)
+        save_ai(temp)
+        print("the model has been saved as " + temp)
+    else:
+        load_ai()
+        load_test()
 
 
 def get_and_use_directory_path():
@@ -40,7 +46,7 @@ def get_and_use_directory_path():
 
 
 def get_user_settings():
-    global training, size, save
+    global training, size, save, epochs
     message = "For training enter 1. For testing enter 2:"
     while 1:
         inp = input(message)
@@ -64,20 +70,17 @@ def get_user_settings():
             break
         else:
             message = "Your size must be at least 128"
-    # message = "Would you like to save any images that need formatting. Formatting means cropping the images to\n" \
-    #           "square to the size you just input of " + str(size) + ". This will not overwrite your original images " \
-    #           "but it\nwill overwrite any previously formatted images. This will make initial runtime longer but " \
-    #           "increase\nspeed for later processing. Type \"yes\" to save or \"no\" to skip this."
-    # while 1:
-    #     inp = input(message)
-    #     if inp.lower() == "yes":
-    #         save = 1
-    #         break
-    #     elif inp.lower() == "no":
-    #         save = 0
-    #         break
-    #     else:
-    #         message = "Please type yes or no"
+    message = "How many epochs would you like to train for. More epochs will take longer " \
+              "and not necessarily lead to higher accuracy. Keep overtraining in mind too."
+    while 1:
+        inp = input(message)
+        if not inp.isdigit():
+            message = "Your size must be a valid integer"
+        elif int(inp) > 0:
+            epochs = int(inp)
+            break
+        else:
+            message = "Your size must be at least 0"
 
 
 def update_settings():

@@ -135,7 +135,7 @@ def compile_network():
 
 
 def train(epochs):
-    model.fit(train_images, train_labels, epochs=10)  # we pass the data, labels and epochs and watch the magic!
+    model.fit(train_images, train_labels, epochs)  # we pass the data, labels and epochs and watch the magic!
 
 
 def evaluate():
@@ -147,3 +147,17 @@ def predict():
     predictions = model.predict(test_images)
     for pred in predictions:
         test_labels[np.argmax(pred)]
+
+
+def load_test():
+    pass
+
+
+def load_ai(loadpath):
+    global model
+    model = keras.models.load_model(loadpath)
+
+
+def save_ai(savepath):
+    global model
+    model.save(savepath)
