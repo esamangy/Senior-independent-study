@@ -1,6 +1,6 @@
 import os
 from random import randrange
-from format_image import load_image, show_image, IMG_SIZE
+from format_image import load_image, show_image
 
 import numpy as np
 import tensorflow as tf
@@ -10,9 +10,11 @@ from tensorflow import keras
 import numpy as np
 import matplotlib.pyplot as plt
 train_images = []
-train_labels = [0, 1]
-test_labels = ["fake", "real"]
+train_labels = []
+class_names = ["fake", "real"]
 test_images = []
+test_labels = []
+IMG_SIZE = -1
 
 path = ""
 model = None
@@ -30,13 +32,15 @@ def init_data(size):
                 real = 1
             else:
                 real = 0
-            test.append((file, real))
+            test.append(file)
+            test_labels.append(real)
         else:
             if file[0] == 'R':
                 real = 1
             else:
                 real = 0
-            train.append((file, real))
+            train.append(file)
+            train_labels.append(real)
     load_data(test, 1)
     load_data(train, 0)
     preprocess_images()
@@ -52,21 +56,23 @@ def load_data(files, test):
 
 
 def load_image_for_ai(info):
-    image = load_image(os.path.join(path, info[0]))
-    return image, info[1]
+    image = load_image(os.path.join(path, info))
+    return image
 
 
 # this method is used to make each pixel into a single data point to make the network smaller
 def preprocess_images():
-    global train_images, test_images
-    temprow = np.empty(len(train_images[0][0][0]), dtype=int)
-    tempimage = np.empty(len(train_images[0][0]), dtype=object)
-    i = 0
+    global train_images, test_images, IMG_SIZE
+    IMG_SIZE = len(train_images[0][0])
+    #= np.empty(len(train_images[0]) * len(train_images[0]), dtype=object)
+
     # for train_images
-    for image, data in train_images:
-        r = 0
+    i = 0
+    for image in train_images:
+        p = 0
+        tempimage = []
         for row in image:
-            p = 0
+            temprow = []
             for pix in row:
                 temp = pix[0]
                 temp = temp << 8
@@ -74,19 +80,19 @@ def preprocess_images():
                 temp = temp << 8
                 temp = temp + pix[2]
                 temp = temp / 0xffffff
-                temprow[r] = temp
-                # error here
+                temprow.append(temp)
                 p += 1
-            tempimage[i] = temprow
-            r += 1
+            tempimage.append(temprow)
         train_images[i] = tempimage
         i += 1
 
     # for test images
-    for image, data in test_images:
-        r = 0
+    i = 0
+    for image in test_images:
+        p = 0
+        tempimage = []
         for row in image:
-            p = 0
+            temprow = []
             for pix in row:
                 temp = pix[0]
                 temp = temp << 8
@@ -94,11 +100,9 @@ def preprocess_images():
                 temp = temp << 8
                 temp = temp + pix[2]
                 temp = temp / 0xffffff
-                temprow[r] = temp
-                # error here
+                temprow.append(temp)
                 p += 1
-            tempimage[i] = temprow
-            r += 1
+            tempimage.append(temprow)
         test_images[i] = tempimage
         i += 1
 
@@ -109,21 +113,21 @@ def build_network():
     if IMG_SIZE <= 256:
         model = keras.Sequential([
             keras.layers.Flatten(input_shape=(IMG_SIZE, IMG_SIZE)),  # input layer (1)
-            keras.layers.Conv1D(IMG_SIZE * 2, activation='relu'),  # hidden layer (2)
-            keras.layers.Dense(IMG_SIZE / 2, activation='sigmoid'), # output layer (3)
+            keras.layers.Dense(IMG_SIZE * 2, activation='relu'),  # hidden layer (2)
+            keras.layers.Dense(IMG_SIZE / 2, activation='sigmoid'),  # output layer (3)
             keras.layers.Dense(1, activation='softmax')  # output layer (4)
         ])
     elif IMG_SIZE <= 512:
         model = keras.Sequential([
             keras.layers.Flatten(input_shape=(IMG_SIZE, IMG_SIZE)),  # input layer (1)
-            keras.layers.Conv1D(IMG_SIZE * 4, activation='relu'),  # hidden layer (2)
+            keras.layers.Dense(IMG_SIZE * 4, activation='relu'),  # hidden layer (2)
             keras.layers.Dense(IMG_SIZE, activation='sigmoid'),  # output layer (3)
             keras.layers.Dense(1, activation='softmax')  # output layer (4)
         ])
     else:
         model = keras.Sequential([
             keras.layers.Flatten(input_shape=(IMG_SIZE, IMG_SIZE)),  # input layer (1)
-            keras.layers.Conv1D(IMG_SIZE * 6, activation='relu'),  # hidden layer (2)
+            keras.layers.Dense(IMG_SIZE * 6, activation='relu'),  # hidden layer (2)
             keras.layers.Dense(IMG_SIZE * 2, activation='sigmoid'),  # output layer (3)
             keras.layers.Dense(IMG_SIZE / 2, activation='sigmoid'),  # output layer (4)
             keras.layers.Dense(1, activation='softmax')  # output layer (5)
@@ -131,10 +135,14 @@ def build_network():
 
 
 def compile_network():
-    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    # loss='sparse_categorical_crossentropy'
 
 def train(epochs):
+    global train_images, train_labels
+    #train_images = np.array(train_images)
+    #train_labels = np.array(train_labels)
+    print(len(train_images))
     model.fit(train_images, train_labels, epochs)  # we pass the data, labels and epochs and watch the magic!
 
 
