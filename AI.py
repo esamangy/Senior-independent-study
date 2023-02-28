@@ -1,4 +1,5 @@
 import os
+from sys import exit
 from random import randrange
 from format_image import load_image, show_image
 
@@ -18,9 +19,23 @@ IMG_SIZE = -1
 
 path = ""
 model = None
+modelname = ""
+loaded_size = -1
+
+
+def get_model_name():
+    return modelname
+
+
+def set_size(size):
+    global IMG_SIZE
+    IMG_SIZE = size
 
 
 def init_data(size):
+    global loaded_size
+    if loaded_size == size:
+        return
     test = []
     train = []
     global path
@@ -44,6 +59,7 @@ def init_data(size):
     load_data(test, 1)
     load_data(train, 0)
     preprocess_images()
+    loaded_size = size
 
 
 def load_data(files, test):
@@ -110,19 +126,22 @@ def preprocess_images():
 # this method will build the network itself
 def build_network():
     global model
+    if IMG_SIZE < 0:
+        print("Invalid image size setup")
+        exit(2)
     if IMG_SIZE <= 256:
         model = keras.Sequential([
             keras.layers.Flatten(input_shape=(IMG_SIZE, IMG_SIZE)),  # input layer (1)
             keras.layers.Dense(IMG_SIZE * 2, activation='relu'),  # hidden layer (2)
             keras.layers.Dense(IMG_SIZE / 2, activation='sigmoid'),  # output layer (3)
-            keras.layers.Dense(1, activation='softmax')  # output layer (4)
+            keras.layers.Dense(1, activation='sigmoid')  # output layer (4)
         ])
     elif IMG_SIZE <= 512:
         model = keras.Sequential([
             keras.layers.Flatten(input_shape=(IMG_SIZE, IMG_SIZE)),  # input layer (1)
             keras.layers.Dense(IMG_SIZE * 4, activation='relu'),  # hidden layer (2)
             keras.layers.Dense(IMG_SIZE, activation='sigmoid'),  # output layer (3)
-            keras.layers.Dense(1, activation='softmax')  # output layer (4)
+            keras.layers.Dense(1, activation='sigmoid')  # output layer (4)
         ])
     else:
         model = keras.Sequential([
@@ -130,7 +149,7 @@ def build_network():
             keras.layers.Dense(IMG_SIZE * 6, activation='relu'),  # hidden layer (2)
             keras.layers.Dense(IMG_SIZE * 2, activation='sigmoid'),  # output layer (3)
             keras.layers.Dense(IMG_SIZE / 2, activation='sigmoid'),  # output layer (4)
-            keras.layers.Dense(1, activation='softmax')  # output layer (5)
+            keras.layers.Dense(1, activation='sigmoid')  # output layer (5)
         ])
 
 
@@ -138,12 +157,12 @@ def compile_network():
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
     # loss='sparse_categorical_crossentropy'
 
-def train(epochs):
+
+def train(e):
     global train_images, train_labels
-    #train_images = np.array(train_images)
-    #train_labels = np.array(train_labels)
-    print(len(train_images))
-    model.fit(train_images, train_labels, epochs)  # we pass the data, labels and epochs and watch the magic!
+    # print(len(train_images))
+    # print(len(test_images))
+    model.fit(train_images, train_labels, epochs=e)  # we pass the data, labels and epochs and watch the magic!
 
 
 def evaluate():
@@ -154,7 +173,7 @@ def evaluate():
 def predict():
     predictions = model.predict(test_images)
     for pred in predictions:
-        test_labels[np.argmax(pred)]
+        test_labels[pred]
 
 
 def load_test():
@@ -162,10 +181,20 @@ def load_test():
 
 
 def load_ai(loadpath):
-    global model
-    model = keras.models.load_model(loadpath)
+    global model, modelname
+    try:
+        model = keras.models.load_model(loadpath)
+        modelname = loadpath
+        return 0
+    except FileNotFoundError:
+        print("The path was not valid")
+        return 1
+    except IOError:
+        print("The path was not valid")
+        return 2
 
 
 def save_ai(savepath):
-    global model
+    global model, modelname
+    modelname = savepath
     model.save(savepath)

@@ -6,29 +6,29 @@ import re
 
 import matplotlib.pyplot as plt
 IMG_SIZE = -1
-SAVE_IMAGE = -1
 
 
-def format_init():
-    global IMG_SIZE, SAVE_IMAGE
-    with open("settings.txt", 'r+', encoding='utf-8') as file:
-        lines = file.readlines()
-        for line in lines:
-            if line.find('size') != -1:
-                temp = ''
-                for char in line:
-                    if char.isdigit():
-                        temp += char
-                IMG_SIZE = int(temp)
-            if line.find('save') != -1:
-                temp = ''
-                for char in line:
-                    if char.isdigit():
-                        temp += char
-                if int(temp):
-                    SAVE_IMAGE = 1
-                else:
-                    SAVE_IMAGE = 0
+def format_init(size):
+    global IMG_SIZE
+    IMG_SIZE = size
+    # with open("settings.txt", 'r+', encoding='utf-8') as file:
+    #     lines = file.readlines()
+    #     for line in lines:
+    #         if line.find('size') != -1:
+    #             temp = ''
+    #             for char in line:
+    #                 if char.isdigit():
+    #                     temp += char
+    #             IMG_SIZE = int(temp)
+    #         if line.find('save') != -1:
+    #             temp = ''
+    #             for char in line:
+    #                 if char.isdigit():
+    #                     temp += char
+    #             if int(temp):
+    #                 SAVE_IMAGE = 1
+    #             else:
+    #                 SAVE_IMAGE = 0
 
 
 def format_directory(path):
@@ -61,10 +61,7 @@ def format_image(path, name):
     if uncropped.shape is not (IMG_SIZE, IMG_SIZE, 3):
         cropped = crop_image(uncropped)
         resized = resize_image(cropped)
-    else:
-        resized = uncropped
-    if SAVE_IMAGE:
-        save_image(resized, name)
+    save_image(resized, name)
     # return resized
 
 
@@ -86,7 +83,7 @@ def crop_image(image):
 
 
 def resize_image(image):
-    return resize(image, (IMG_SIZE, IMG_SIZE, 3))
+    return resize(image, (IMG_SIZE, IMG_SIZE))
 
 
 def save_image(image, name):
