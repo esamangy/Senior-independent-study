@@ -123,6 +123,19 @@ def preprocess_images():
         i += 1
 
 
+def get_size():
+    temp = modelname.split("x")
+    size = 0
+    for ch in temp[1]:
+        if ch == "_":
+            break
+        else:
+            size += int(ch)
+            size *= 10
+    size /= 10
+    return int(size)
+
+
 # this method will build the network itself
 def build_network():
     global model
@@ -172,12 +185,13 @@ def evaluate():
 
 def predict():
     predictions = model.predict(test_images)
-    for pred in predictions:
-        test_labels[pred]
-
-
-def load_test():
-    pass
+    for predcntr in range(len(predictions)):
+        predmsg = "Please press enter to view the next prediction, or type \"c\" to stop\n"
+        inp = input(predmsg)
+        if inp == "c":
+            return
+        print("The model Predicted: " + str(predictions[predcntr][0]))
+        print("The correct answer is: " + str(test_labels[predcntr]))
 
 
 def load_ai(loadpath):

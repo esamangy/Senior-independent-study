@@ -126,65 +126,74 @@ def train_control():
                     trainmsg = "Please enter a a valid path"
         else:
             trainmsg = "Please enter a \"y\" to continue with the current model or a \"n\" to change models\n"
-        p = get_model_name()
-        trainmsg = "Please enter a valid number of epochs you would like to train for\n"
-        while 1:
-            inp = input(trainmsg)
-            if not inp.isdigit():
-                trainmsg = "Your size must be a valid integer\n"
-            elif int(inp) <= 0:
-                trainmsg = "The number of epochs must be at least 1\n"
-            else:
-                print("Now training for " + inp + " epochs. Please wait.\n")
-                temp = p.split("x")
-                size = 0
-                for ch in temp[1]:
-                    if ch == "_":
-                        break
-                    else:
-                        size += int(ch)
-                        size *= 10
-                size /= 10
-                init_data(int(size))
-                train(int(inp))
-                break
-        temp = p.split("_")
-        num = ""
-        for ch in temp[1]:
-            if ch.isdigit():
-                num += ch
-        newname = temp[0] + "_" + str(int(num) + int(inp))
-        save_ai(newname)
-        print("The model has been saved as: " + newname)
+    p = get_model_name()
+    trainmsg = "Please enter a valid number of epochs you would like to train for\n"
+    while 1:
+        inp = input(trainmsg)
+        if not inp.isdigit():
+            trainmsg = "Your size must be a valid integer\n"
+        elif int(inp) <= 0:
+            trainmsg = "The number of epochs must be at least 1\n"
+        else:
+            print("Now training for " + inp + " epochs. Please wait.\n")
+            init_data(get_size())
+            train(int(inp))
+            break
+    temp = p.split("_")
+    num = ""
+    for ch in temp[1]:
+        if ch.isdigit():
+            num += ch
+    newname = temp[0] + "_" + str(int(num) + int(inp))
+    save_ai(newname)
+    print("The model has been saved as: " + newname)
 
 
 def test_control():
-    pass
-
-
-def old():
-    # get input
-    get_user_settings()
-    update_settings()
-    # init everything
-    if training:
-        format_init()
-        #get_and_use_directory_path()
-        init_data(size)
-        print("Building and compiling network")
-        build_network()
-        compile_network()
-        print("Training network now")
-        train(epochs)
-        print("Evaluating network")
-        evaluate()
-        if save:
-            temp = "Model" + str(size) + "x" + str(size) + "_" + str(epochs)
-            save_ai(temp)
-            print("The model has been saved as: " + temp)
-    else:
-        load_ai()
-        load_test()
+    testmsg = "You are now in the testing section, The currently loaded model is: " + get_model_name() + \
+               "\nPlease enter a \"y\" to continue working with this model, or a \"n\" to change models.\n" \
+               "Or enter a 1 to go back to the main menu\n"
+    needmodel = True
+    while needmodel:
+        inp = input(testmsg)
+        if inp.isdigit() and int(inp) == 1:
+            return
+        if inp.lower() == "y":
+            print("Continuing testing with: " + get_model_name())
+            needmodel = False
+        elif inp.lower() == "n":
+            testmsg = "Please enter the path to a folder with the model in it or type 1 to go back\n" \
+                       "The model should have a name similar to \"Model<SIZE>x<SIZE>_<INT>\"\n"
+            pathcheck = False
+            while not pathcheck:
+                inp = input(testmsg)
+                if load_ai(inp) == 0:
+                    pathcheck = True
+                    needmodel = False
+                else:
+                    testmsg = "Please enter a a valid path"
+        else:
+            testmsg = "Please enter a \"y\" to continue with the current model or a \"n\" to change models\n"
+    testmsg = "Would you like to evaluate the Model or see its predictions?\n" \
+              "Please enter an \"e\" to evaluate, a \"p\" to predict, or enter a \"c\" to cancel\n"
+    while 1:
+        inp = input(testmsg)
+        if not inp.isalpha():
+            testmsg = "You must enter an \"e\" to evaluate, a \"p\" to predict, or enter a \"c\" to cancel\n"
+        elif inp == "e":
+            print("Evaluating the Model\n")
+            init_data(get_size())
+            evaluate()
+            testmsg = "Please enter an \"e\" to evaluate, a \"p\" to predict, or enter a \"c\" to cancel\n"
+        elif inp == "p":
+            print("Now getting the Model's predictions")
+            init_data(get_size())
+            predict()
+            testmsg = "Please enter an \"e\" to evaluate, a \"p\" to predict, or enter a \"c\" to cancel\n"
+        elif inp == "c":
+            return
+        else:
+            testmsg = "You must enter an \"e\" to evaluate, a \"p\" to predict, or enter a \"c\" to cancel\n"
 
 
 def check_directory_path(p):
@@ -200,67 +209,6 @@ def check_directory_path(p):
         print("The directory you input has no images, please input another path")
         return False
     return True
-
-
-def get_user_settings():
-    global training, size, save, epochs
-    message = "For training enter 1. For testing enter 2:"
-    while 1:
-        inp = input(message)
-        if int(inp) == 1:
-            training = True
-            break
-        elif int(inp) == 2:
-            training = False
-            break
-        else:
-            message = "please enter a 1 or 2"
-    message = "Please enter a valid image size. The images will be square so only one number is needed.\n" \
-              "I recommend a size between 256 and 512 however any size will do.\n" \
-              "The size must be at least 128. Larger images will take longer to process"
-    while 1:
-        inp = input(message)
-        if not inp.isdigit():
-            message = "Your size must be a valid integer"
-        elif int(inp) >= 128:
-            size = int(inp)
-            break
-        else:
-            message = "Your size must be at least 128"
-    message = "How many epochs would you like to train for. More epochs will take longer " \
-              "and not necessarily lead to higher accuracy. Keep overtraining in mind too."
-    while 1:
-        inp = input(message)
-        if not inp.isdigit():
-            message = "Your size must be a valid integer"
-        elif int(inp) > 0:
-            epochs = int(inp)
-            break
-        else:
-            message = "Your size must be at least 0"
-    message = "Would you like to save the model. Y for yes, N for no"
-    while 1:
-        inp = input(message)
-        if not inp.isalpha():
-            message = "You must enter a letter"
-        elif inp.lower() == 'y':
-            save = True
-            break
-        elif inp.lower() == 'n':
-            save = False
-            break
-        else:
-            print(inp.lower() == 'y')
-            message = "You must enter a \'Y\' or a \'N\'"
-
-
-def update_settings():
-    with open("settings.txt", 'w', encoding='utf-8') as file:
-        file.write('size' + str(size) + '\n')
-        # file.write('save' + str(save) + '\n')
-        file.write('save' + '1' + '\n')
-        #if save == 1:
-            #file.write('cntr' + '0')
 
 
 if __name__ == "__main__":
