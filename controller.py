@@ -1,14 +1,19 @@
 # this file will be used as a controller to control all aspects of the program
+# this file acts as the main and sub menus, suing the functions from the other two files
 from format_image import format_directory, format_init
 from AI import *
+import time
 
 training = None
 size = -1
 epochs = -1
 baseask = "Please enter a 1 for image editing\nPlease enter a 2 for network building\n" \
           "Please enter a 3 for model training\nPlease enter a 4 for model testing\nPlease enter a 5 to quit\n"
+starttime = time.time()
+curtime = starttime
 
 
+# The main function. responsible for main menu actions.
 def main():
     inp = int(input(baseask))
     while inp != 5:
@@ -26,6 +31,8 @@ def main():
     print("Thank You")
 
 
+# This function is responsible for the image editing section. It will perform all necessary operations
+# to format folder of images into a new folder ready for processing
 def image_edit_control():
     global size
     editmsg = "You are now in the Image editing section, to begin editing images for the AI\n" \
@@ -38,22 +45,23 @@ def image_edit_control():
         pathcheck = check_directory_path(inp)
     p = inp
     editmsg = "Please enter a valid image size. The images will be square so only one number is needed.\n" \
-              "It is recommended to use a size between 256 and 512 however any size will do.\n" \
-              "The size must be at least 128. Larger images will take longer to process\n"
+              "It is recommended to use a size between 128 and 256 however any size will do.\n" \
+              "The size must be at least 64. Larger images will take longer to process\n"
     while 1:
         inp = input(editmsg)
         if not inp.isdigit():
             editmsg = "Your size must be a valid integer"
-        elif int(inp) >= 128:
+        elif int(inp) >= 64:
             size = int(inp)
             break
         else:
-            editmsg = "Your size must be at least 128"
+            editmsg = "Your size must be at least 64"
     print("Please wait while your images are being formatted")
     format_init(size)
     format_directory(p)
 
 
+# this is responsible for the network building section. It will do all the necessary work to build a network
 def network_build_control():
     buildmsg = "You are now in the network building section, to begin building the network of the AI\n" \
                "please enter the path to a folder with the EDITED images in it or type 1 to go back\n"
@@ -101,6 +109,7 @@ def network_build_control():
     print("The model has been saved as: " + temp)
 
 
+# this is responsible for the training section. It will facilitate all necessary parts of training a model
 def train_control():
     trainmsg = "You are now in the training section, The current loaded model is: " + get_model_name() + \
                "\nPlease enter a \"y\" to continue working with this model, or a \"n\" to change models.\n" \
@@ -137,7 +146,12 @@ def train_control():
         else:
             print("Now training for " + inp + " epochs. Please wait.\n")
             init_data(get_size())
+            # the below line is used to get the total training time used in secondary test 3
+            #starttime = time.time()
             train(int(inp))
+            # the below line is used to get the total training time used in secondary test 3
+            #curtime = time.time()
+            print("time taken: " + str(curtime - starttime))
             break
     temp = p.split("_")
     num = ""
@@ -149,6 +163,7 @@ def train_control():
     print("The model has been saved as: " + newname)
 
 
+# this is responsible for testing. It will facilitate interpreting user input to test the currently loaded model
 def test_control():
     testmsg = "You are now in the testing section, The currently loaded model is: " + get_model_name() + \
                "\nPlease enter a \"y\" to continue working with this model, or a \"n\" to change models.\n" \
@@ -196,6 +211,7 @@ def test_control():
             testmsg = "You must enter an \"e\" to evaluate, a \"p\" to predict, or enter a \"c\" to cancel\n"
 
 
+# this is a helper function to test if the given path p exists
 def check_directory_path(p):
     try:
         os.access(p, os.F_OK)
@@ -211,5 +227,6 @@ def check_directory_path(p):
     return True
 
 
+# program enters here
 if __name__ == "__main__":
     main()

@@ -1,3 +1,5 @@
+# this file is responsible for all AI related functions and their helper functions
+# this file is used by controller.py
 import os
 from sys import exit
 from random import randrange
@@ -23,15 +25,18 @@ modelname = ""
 loaded_size = -1
 
 
+# helper function to get the name of the currently loaded model. Used to know if loading a new model is necessary
 def get_model_name():
     return modelname
 
 
+# helper function to set the IMG_SIZE variable of the AI.py file is set
 def set_size(size):
     global IMG_SIZE
     IMG_SIZE = size
 
 
+# this function will load a folder of images of IMG_SIZE and facilitate preprocessing them
 def init_data(size):
     global loaded_size
     if loaded_size == size:
@@ -42,7 +47,7 @@ def init_data(size):
     path = "formatted_images" + str(size) + "x" + str(size) + "\\"
     files = os.listdir(path)
     for file in files:
-        if randrange(7) == 0:
+        if randrange(5) == 0:
             if file[0] == 'R':
                 real = 1
             else:
@@ -62,6 +67,7 @@ def init_data(size):
     loaded_size = size
 
 
+# this is a helper function to add each loaded image to a local array
 def load_data(files, test):
     global test_images, train_images
     for file in files:
@@ -71,6 +77,7 @@ def load_data(files, test):
             train_images.append(load_image_for_ai(file))
 
 
+# this will return an image given a viable path to an image
 def load_image_for_ai(info):
     image = load_image(os.path.join(path, info))
     return image
@@ -123,6 +130,7 @@ def preprocess_images():
         i += 1
 
 
+# this helper function will get the size of images from the folder name
 def get_size():
     temp = modelname.split("x")
     size = 0
@@ -136,7 +144,7 @@ def get_size():
     return int(size)
 
 
-# this method will build the network itself
+# this method will build the network itself into the currently loaded model
 def build_network():
     global model
     if IMG_SIZE < 0:
@@ -166,11 +174,13 @@ def build_network():
         ])
 
 
+# this will compile the currently loaded network
 def compile_network():
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
     # loss='sparse_categorical_crossentropy'
 
 
+# this will train the currently loaded model
 def train(e):
     global train_images, train_labels
     # print(len(train_images))
@@ -178,11 +188,13 @@ def train(e):
     model.fit(train_images, train_labels, epochs=e)  # we pass the data, labels and epochs and watch the magic!
 
 
+# this will evaluate the currently loaded model
 def evaluate():
     test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=1)
     print('Test accuracy:', test_acc)
 
 
+# this will print individual predictions until they run out or a c is input
 def predict():
     predictions = model.predict(test_images)
     for predcntr in range(len(predictions)):
@@ -194,6 +206,7 @@ def predict():
         print("The correct answer is: " + str(test_labels[predcntr]))
 
 
+# this will load a model
 def load_ai(loadpath):
     global model, modelname
     try:
@@ -208,6 +221,7 @@ def load_ai(loadpath):
         return 2
 
 
+# this will save a model to the savepath name
 def save_ai(savepath):
     global model, modelname
     modelname = savepath
