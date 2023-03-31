@@ -4,9 +4,6 @@ import os
 from sys import exit
 from random import randrange
 from format_image import load_image, show_image
-
-import numpy as np
-import tensorflow as tf
 from tensorflow import keras
 
 # Helper libraries
